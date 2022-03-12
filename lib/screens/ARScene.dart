@@ -14,7 +14,9 @@ import '../models/user_location.dart';
 import 'package:provider/provider.dart';
 
 class ARSceneView extends StatefulWidget {
-  const ARSceneView({Key? key}) : super(key: key);
+
+ final bool isMatch;
+ const ARSceneView(  {Key? key,required this.isMatch}) : super(key: key);
 
   @override
   _ARSceneViewState createState() => _ARSceneViewState();
@@ -26,15 +28,16 @@ class _ARSceneViewState extends State<ARSceneView> {
   late ARNode localObjectNode;
   late ARNode fileSystemNode;
   late ARNode newNode;
-  late UserLocation userLocation;
-  var objectLatitude = 28.617869;
-  var objectLongitude = 77.389296;
-  var coordinatesController = CoordinatesController();
+
+
+
 
   Future<void> onObjTapped(List<String> nodes) async {
-    arObjectManager.removeNode(localObjectNode);
+    // arObjectManager.removeNode(localObjectNode);
     Navigator.pop(context);
   }
+  @override
+
 
   @override
   void dispose() {
@@ -42,36 +45,19 @@ class _ARSceneViewState extends State<ARSceneView> {
     arSessionManager.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
-    userLocation = Provider.of<UserLocation>(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('ARScene'),
+        title:  Text('ARScene'),
       ),
       body: Stack(children: [
         ARView(
           onARViewCreated: onARViewCreated,
           planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
         ),
-        ///Test Coordinates in Screen
-        // Column(
-        //   children: [
-        //     Text(
-        //       'the current latitude&longitude is ${userLocation.latitude}  &  ${userLocation.longitude}',
-        //       style: const TextStyle(
-        //           fontSize: 15, color: Color.fromRGBO(255, 255, 255, 1)),
-        //     ),
-        //     const SizedBox(
-        //       height: 30,
-        //     ),
-        //     Text(
-        //       'The object coordinates is ${coordinatesController.longLatFirstThreeDigitsAfterDecimal(objectLatitude)}& ${coordinatesController.longLatFirstThreeDigitsAfterDecimal(objectLongitude)}',
-        //       style: const TextStyle(
-        //           fontSize: 15, color: Color.fromRGBO(255, 255, 255, 1)),
-        //     ),
-        //   ],
-        // )
       ]),
     );
   }
@@ -84,27 +70,15 @@ class _ARSceneViewState extends State<ARSceneView> {
     this.arSessionManager = arSessionManager;
     this.arObjectManager = arObjectManager;
 
-    /// minimizing longitude and latitude double to 3 digits after the decimal point without rounding it to save the
-    ///                             original value of it, that controlling the accuracy of location
-    double fixedUserLatitude = coordinatesController
-        .longLatFirstThreeDigitsAfterDecimal(userLocation.latitude);
-    double fixedUserLongitude =
-        coordinatesController.longLatFirstThreeDigitsAfterDecimal(
-            userLocation.longitude);
-    double fixedObjectLatitude = coordinatesController
-        .longLatFirstThreeDigitsAfterDecimal(objectLatitude);
-    double fixedObjectLongitude = coordinatesController
-        .longLatFirstThreeDigitsAfterDecimal(objectLongitude);
-
     this.arSessionManager.onInitialize(
           showFeaturePoints: false,
           showPlanes: false,
           showWorldOrigin: false,
           handleTaps: false,
+      handlePans: false,
         );
 
-    if (fixedObjectLatitude == fixedUserLatitude &&
-        fixedObjectLongitude == fixedUserLongitude) {
+    if (widget.isMatch) {
       newNode = ARNode(
           type: NodeType.localGLTF2,
           uri: "3DModel/scene.gltf",

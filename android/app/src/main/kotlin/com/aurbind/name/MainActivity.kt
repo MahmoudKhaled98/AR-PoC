@@ -1,4 +1,4 @@
-package com.mk.poc
+package com.aurbind.name
 
 import io.flutter.embedding.android.FlutterActivity
 
